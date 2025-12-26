@@ -21,7 +21,7 @@ Thumbs.db
 # AppImage Build Artifacts
 AppDir/
 *.AppImage
-fusee-nano
+/fusee-nano
 build_appimage.sh
 !build_appimage.sh
 # We want to track the build script, but ignore the binary fusee-nano copy if it is just a copy
