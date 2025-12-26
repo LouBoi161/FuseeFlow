@@ -16,20 +16,12 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QByteArray, QTimer, QRectF
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QPainter, QColor
 
-# Import local backend injector
-sys.path.append(os.path.join(os.path.dirname(__file__), "backend"))
-import rcm_injector
-
 # ----------------- Constants -----------------
 # Determine paths based on standard Linux XDG directories for user data
 # This ensures it works in read-only environments like AppImages
 HOME = os.path.expanduser("~")
-if sys.platform == "win32":
-    XDG_CONFIG_HOME = os.environ.get("APPDATA", os.path.join(HOME, "AppData", "Roaming"))
-    XDG_DATA_HOME = os.environ.get("LOCALAPPDATA", os.path.join(HOME, "AppData", "Local"))
-else:
-    XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
-    XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.join(HOME, ".local", "share"))
+XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
+XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.join(HOME, ".local", "share"))
 
 APP_NAME = "FuseeFlow"
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, APP_NAME)
@@ -101,7 +93,7 @@ QTextEdit { background-color: #3B4252; color: #ECEFF4; border: 1px solid #4C566A
 QTabWidget::pane { border: 1px solid #4C566A; border-radius: 5px; }
 QTabBar::tab { background: #3B4252; color: #ECEFF4; padding: 10px 20px; border-top-left-radius: 5px; border-top-right-radius: 5px; margin-right: 2px; }
 QTabBar::tab:selected { background: #4C566A; font-weight: bold; border-bottom: 2px solid #88C0D0; }
-"
+"""
 
 LIGHT_THEME = """
 QWidget#MainWindow, QWidget#LogContainer { background-color: #ECEFF4; }
@@ -129,7 +121,7 @@ QTextEdit { background-color: #E5E9F0; color: #2E3440; border: 1px solid #BCC6D9
 QTabWidget::pane { border: 1px solid #BCC6D9; border-radius: 5px; }
 QTabBar::tab { background: #E5E9F0; color: #2E3440; padding: 10px 20px; border-top-left-radius: 5px; border-top-right-radius: 5px; margin-right: 2px; }
 QTabBar::tab:selected { background: #D8DEE9; font-weight: bold; border-bottom: 2px solid #5E81AC; }
-"
+"""
 
 # ----------------- Custom Widgets -----------------
 class CustomComboBox(QComboBox):
@@ -447,7 +439,7 @@ class SwitchInjectorApp(QMainWindow):
                  self.log("Udev rules seem to be present.", "success")
             else:
                  self.log("Udev rules not found! You might need them for USB access without sudo.", "error")
-                 cmd = 'echo \'SUBSYSTEM=="usb", ATTRS{idVendor}="0955", ATTRS{idProduct}="7321", MODE="0666"\' | sudo tee /etc/udev/rules.d/50-switch.rules && sudo udevadm control --reload-rules && sudo udevadm trigger'
+                 cmd = 'echo \'SUBSYSTEM=="usb", ATTRS{idVendor}=="0955", ATTRS{idProduct}=="7321", MODE="0666"\' | sudo tee /etc/udev/rules.d/50-switch.rules && sudo udevadm control --reload-rules && sudo udevadm trigger'
                  self.log(f"Run this in terminal:\n{cmd}", "info")
                  QMessageBox.information(self, "Udev Rules Missing", f"To fix USB permissions, run this in your terminal:\n\n{cmd}")
         except Exception as e:
