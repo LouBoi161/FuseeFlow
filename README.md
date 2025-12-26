@@ -4,6 +4,9 @@
 
 **FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using `fusee-nano` as the backend.
 
+> [!IMPORTANT]
+> This project was developed with the assistance of AI (Google Gemini).
+
 ![Screenshot](screenshot.png)
 
 ## Features
