@@ -22,7 +22,14 @@
 
 ## 🐧 Linux Installation
 
-### 1. System Dependencies
+### 1. Clone the Repository
+Start by cloning the repository and navigating into the directory:
+```bash
+git clone https://github.com/LouBoi161/FuseeFlow.git
+cd FuseeFlow
+```
+
+### 2. System Dependencies
 
 You need `libusb` and the `fusee-nano` binary.
 
@@ -44,12 +51,12 @@ sudo apt install python3 python3-pip libusb-1.0-0-dev
 sudo dnf install python3 python3-pip libusb1-devel
 ```
 
-### 2. Python Dependencies
+### 3. Python Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. USB Permissions (Critical)
+### 4. USB Permissions (Critical)
 To access the Switch without root, add a udev rule:
 
 1.  Create `/etc/udev/rules.d/99-switch.rules`:
@@ -65,7 +72,7 @@ To access the Switch without root, add a udev rule:
     sudo udevadm control --reload-rules && sudo udevadm trigger
     ```
 
-### 4. Running
+### 5. Running
 ```bash
 python main.py
 ```
