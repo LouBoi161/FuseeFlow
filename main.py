@@ -17,12 +17,30 @@ from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QPainter, QColor
 
 # ----------------- Constants -----------------
+# Determine paths based on standard Linux XDG directories for user data
+# This ensures it works in read-only environments like AppImages
+HOME = os.path.expanduser("~")
+XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
+XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.join(HOME, ".local", "share"))
+
+APP_NAME = "FuseeFlow"
+CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, APP_NAME)
+DATA_DIR = os.path.join(XDG_DATA_HOME, APP_NAME)
+
+# Ensure directories exist
+os.makedirs(CONFIG_DIR, exist_ok=True)
+os.makedirs(DATA_DIR, exist_ok=True)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RCM_VENDOR_ID = 0x0955
 RCM_PRODUCT_ID = 0x7321
-FUSEE_NANO_PATH = shutil.which("fusee-nano") or os.path.join(BASE_DIR, "fusee-nano") or os.path.expanduser("~/bin/fusee-nano")
-CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
-PAYLOADS_DIR = os.path.join(BASE_DIR, "payloads")
+
+# Try to find fusee-nano in PATH (AppImage adds its internal /usr/bin to PATH)
+# fallback to local folder for dev mode
+FUSEE_NANO_PATH = shutil.which("fusee-nano") or os.path.join(BASE_DIR, "fusee-nano")
+
+CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
+PAYLOADS_DIR = os.path.join(DATA_DIR, "payloads")
 HEKATE_API_URL = "https://api.github.com/repos/CTCaer/hekate/releases/latest"
 
 # ----------------- Stylesheet (QSS) -----------------
@@ -639,6 +657,10 @@ class SwitchInjectorApp(QMainWindow):
 
 # ----------------- Run Application -----------------
 def run_in_new_terminal():
+    # If running inside an AppImage, do not spawn a terminal
+    if os.environ.get("APPIMAGE"):
+        return
+
     # Check if we have already relaunched in a new terminal to avoid loops
     if os.environ.get("SWITCH_INJECTOR_TERMINAL") == "1":
         return

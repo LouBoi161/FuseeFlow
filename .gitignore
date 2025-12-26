@@ -17,3 +17,13 @@ injector_config.txt
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# AppImage Build Artifacts
+AppDir/
+*.AppImage
+fusee-nano
+build_appimage.sh
+!build_appimage.sh
+# We want to track the build script, but ignore the binary fusee-nano copy if it is just a copy
+# Actually, let's ignore the root fusee-nano if it is a copy.
+

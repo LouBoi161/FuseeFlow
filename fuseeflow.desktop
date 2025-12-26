@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=FuseeFlow
+Comment=Nintendo Switch RCM Payload Injector
+Exec=main
+Icon=app_icon
+Categories=Utility;System;
+Terminal=false
