@@ -16,12 +16,20 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QByteArray, QTimer, QRectF
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtGui import QPainter, QColor
 
+# Import local backend injector
+sys.path.append(os.path.join(os.path.dirname(__file__), "backend"))
+import injector
+
 # ----------------- Constants -----------------
 # Determine paths based on standard Linux XDG directories for user data
 # This ensures it works in read-only environments like AppImages
 HOME = os.path.expanduser("~")
-XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
-XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.join(HOME, ".local", "share"))
+if sys.platform == "win32":
+    XDG_CONFIG_HOME = os.environ.get("APPDATA", os.path.join(HOME, "AppData", "Roaming"))
+    XDG_DATA_HOME = os.environ.get("LOCALAPPDATA", os.path.join(HOME, "AppData", "Local"))
+else:
+    XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
+    XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.join(HOME, ".local", "share"))
 
 APP_NAME = "FuseeFlow"
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, APP_NAME)
@@ -34,33 +42,6 @@ os.makedirs(DATA_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RCM_VENDOR_ID = 0x0955
 RCM_PRODUCT_ID = 0x7321
-
-# Locate fusee-nano
-# Priority: 
-# 1. Local backend source build (backend/fusee-nano/fusee-nano)
-# 2. Local binary in project root (legacy/AppImage)
-# 3. System PATH
-FUSEE_SOURCE_DIR = os.path.join(BASE_DIR, "backend", "fusee-nano")
-LOCAL_BINARY = os.path.join(FUSEE_SOURCE_DIR, "fusee-nano")
-
-# Check if we need to build it
-if os.path.exists(FUSEE_SOURCE_DIR) and not os.path.exists(LOCAL_BINARY) and not shutil.which("fusee-nano"):
-    print("[INFO] fusee-nano binary not found. Attempting to build from source...")
-    try:
-        # Check if make and gcc are available
-        if shutil.which("make") and shutil.which("gcc"):
-            subprocess.run(["make"], cwd=FUSEE_SOURCE_DIR, check=True)
-            print("[SUCCESS] fusee-nano built successfully.")
-        else:
-            print("[ERROR] 'make' or 'gcc' not found. Cannot build fusee-nano.")
-    except Exception as e:
-        print(f"[ERROR] Build failed: {e}")
-
-FUSEE_NANO_PATH = (
-    (LOCAL_BINARY if os.path.exists(LOCAL_BINARY) else None) or
-    shutil.which("fusee-nano") or 
-    os.path.join(BASE_DIR, "fusee-nano")
-)
 
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 PAYLOADS_DIR = os.path.join(DATA_DIR, "payloads")
@@ -634,23 +615,18 @@ class SwitchInjectorApp(QMainWindow):
                  self.log("Payloads directory missing.", "error"); return
 
         if not payload_to_inject or not os.path.exists(payload_to_inject): self.log("Selected payload not found.", "error"); return
-        if not os.path.exists(FUSEE_NANO_PATH): self.log(f"fusee-nano not found at: {FUSEE_NANO_PATH}", "error"); return
         
         self.log(f"Injecting {os.path.basename(payload_to_inject)}...", "info")
+        
+        # Use Python Injector
         try:
-            process = subprocess.Popen([FUSEE_NANO_PATH, payload_to_inject], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            stdout, stderr = process.communicate()
-            if process.returncode == 0: 
-                self.confetti_overlay.start()
-                self.log("Payload injected successfully!", "success")
-                self.show_temporary_status("INJECTION SUCCESSFUL!", "#A3BE8C")
-                if stdout.strip(): self.log(stdout, "info")
-            else: 
-                self.log("Injection Failed.", "error")
-                self.show_temporary_status("INJECTION FAILED!", "#BF616A")
-                self.log(stderr, "error")
-        except Exception as e: 
-            self.log(f"Execution Error: {e}", "error")
+            injector.inject(payload_to_inject)
+            self.confetti_overlay.start()
+            self.log("Payload injected successfully!", "success")
+            self.show_temporary_status("INJECTION SUCCESSFUL!", "#A3BE8C")
+        except Exception as e:
+            self.log(f"Injection Failed: {e}", "error")
+            self.show_temporary_status("INJECTION FAILED!", "#BF616A")
 
     def on_download_finished(self, filename):
         self.get_hekate_btn_adv.setEnabled(True)
