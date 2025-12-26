@@ -36,19 +36,17 @@ cd FuseeFlow
 
 ### 2. System Dependencies
 
-You need `libusb` and the `fusee-nano` binary.
+You need `libusb` for communication with the Switch.
 
 **Arch Linux / Manjaro:**
 ```bash
 sudo pacman -S python python-pip libusb
-yay -S fusee-nano
 ```
 
 **Debian / Ubuntu / Mint:**
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip libusb-1.0-0-dev
-# You will need to download/build fusee-nano manually or place the provided binary in the app folder.
 ```
 
 **Fedora:**
@@ -88,7 +86,6 @@ python main.py
 ## ⚙️ Configuration
 
 - **Payloads:** Place your `.bin` payloads in the `payloads/` folder to have them auto-detected.
-- **fusee-nano:** The app looks for `fusee-nano` in the current folder, `~/bin`, or your system PATH.
 
 ## License
 
