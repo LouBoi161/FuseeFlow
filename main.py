@@ -18,7 +18,7 @@ from PyQt6.QtGui import QPainter, QColor
 
 # Import local backend injector
 sys.path.append(os.path.join(os.path.dirname(__file__), "backend"))
-import injector
+import rcm_injector
 
 # ----------------- Constants -----------------
 # Determine paths based on standard Linux XDG directories for user data
@@ -42,6 +42,33 @@ os.makedirs(DATA_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RCM_VENDOR_ID = 0x0955
 RCM_PRODUCT_ID = 0x7321
+
+# Locate fusee-nano
+# Priority: 
+# 1. Local backend source build (backend/fusee-nano/fusee-nano)
+# 2. Local binary in project root (legacy/AppImage)
+# 3. System PATH
+FUSEE_SOURCE_DIR = os.path.join(BASE_DIR, "backend", "fusee-nano")
+LOCAL_BINARY = os.path.join(FUSEE_SOURCE_DIR, "fusee-nano")
+
+# Check if we need to build it
+if os.path.exists(FUSEE_SOURCE_DIR) and not os.path.exists(LOCAL_BINARY) and not shutil.which("fusee-nano"):
+    print("[INFO] fusee-nano binary not found. Attempting to build from source...")
+    try:
+        # Check if make and gcc are available
+        if shutil.which("make") and shutil.which("gcc"):
+            subprocess.run(["make"], cwd=FUSEE_SOURCE_DIR, check=True)
+            print("[SUCCESS] fusee-nano built successfully.")
+        else:
+            print("[ERROR] 'make' or 'gcc' not found. Cannot build fusee-nano.")
+    except Exception as e:
+        print(f"[ERROR] Build failed: {e}")
+
+FUSEE_NANO_PATH = (
+    (LOCAL_BINARY if os.path.exists(LOCAL_BINARY) else None) or
+    shutil.which("fusee-nano") or 
+    os.path.join(BASE_DIR, "fusee-nano")
+)
 
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 PAYLOADS_DIR = os.path.join(DATA_DIR, "payloads")
@@ -74,7 +101,7 @@ QTextEdit { background-color: #3B4252; color: #ECEFF4; border: 1px solid #4C566A
 QTabWidget::pane { border: 1px solid #4C566A; border-radius: 5px; }
 QTabBar::tab { background: #3B4252; color: #ECEFF4; padding: 10px 20px; border-top-left-radius: 5px; border-top-right-radius: 5px; margin-right: 2px; }
 QTabBar::tab:selected { background: #4C566A; font-weight: bold; border-bottom: 2px solid #88C0D0; }
-"""
+"
 
 LIGHT_THEME = """
 QWidget#MainWindow, QWidget#LogContainer { background-color: #ECEFF4; }
@@ -102,7 +129,7 @@ QTextEdit { background-color: #E5E9F0; color: #2E3440; border: 1px solid #BCC6D9
 QTabWidget::pane { border: 1px solid #BCC6D9; border-radius: 5px; }
 QTabBar::tab { background: #E5E9F0; color: #2E3440; padding: 10px 20px; border-top-left-radius: 5px; border-top-right-radius: 5px; margin-right: 2px; }
 QTabBar::tab:selected { background: #D8DEE9; font-weight: bold; border-bottom: 2px solid #5E81AC; }
-"""
+"
 
 # ----------------- Custom Widgets -----------------
 class CustomComboBox(QComboBox):
@@ -420,7 +447,7 @@ class SwitchInjectorApp(QMainWindow):
                  self.log("Udev rules seem to be present.", "success")
             else:
                  self.log("Udev rules not found! You might need them for USB access without sudo.", "error")
-                 cmd = 'echo \'SUBSYSTEM=="usb", ATTRS{idVendor}=="0955", ATTRS{idProduct}=="7321", MODE="0666"\' | sudo tee /etc/udev/rules.d/50-switch.rules && sudo udevadm control --reload-rules && sudo udevadm trigger'
+                 cmd = 'echo \'SUBSYSTEM=="usb", ATTRS{idVendor}="0955", ATTRS{idProduct}="7321", MODE="0666"\' | sudo tee /etc/udev/rules.d/50-switch.rules && sudo udevadm control --reload-rules && sudo udevadm trigger'
                  self.log(f"Run this in terminal:\n{cmd}", "info")
                  QMessageBox.information(self, "Udev Rules Missing", f"To fix USB permissions, run this in your terminal:\n\n{cmd}")
         except Exception as e:
@@ -615,18 +642,23 @@ class SwitchInjectorApp(QMainWindow):
                  self.log("Payloads directory missing.", "error"); return
 
         if not payload_to_inject or not os.path.exists(payload_to_inject): self.log("Selected payload not found.", "error"); return
+        if not os.path.exists(FUSEE_NANO_PATH): self.log(f"fusee-nano not found at: {FUSEE_NANO_PATH}", "error"); return
         
         self.log(f"Injecting {os.path.basename(payload_to_inject)}...", "info")
-        
-        # Use Python Injector
         try:
-            injector.inject(payload_to_inject)
-            self.confetti_overlay.start()
-            self.log("Payload injected successfully!", "success")
-            self.show_temporary_status("INJECTION SUCCESSFUL!", "#A3BE8C")
-        except Exception as e:
-            self.log(f"Injection Failed: {e}", "error")
-            self.show_temporary_status("INJECTION FAILED!", "#BF616A")
+            process = subprocess.Popen([FUSEE_NANO_PATH, payload_to_inject], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout, stderr = process.communicate()
+            if process.returncode == 0: 
+                self.confetti_overlay.start()
+                self.log("Payload injected successfully!", "success")
+                self.show_temporary_status("INJECTION SUCCESSFUL!", "#A3BE8C")
+                if stdout.strip(): self.log(stdout, "info")
+            else: 
+                self.log("Injection Failed.", "error")
+                self.show_temporary_status("INJECTION FAILED!", "#BF616A")
+                self.log(stderr, "error")
+        except Exception as e: 
+            self.log(f"Execution Error: {e}", "error")
 
     def on_download_finished(self, filename):
         self.get_hekate_btn_adv.setEnabled(True)

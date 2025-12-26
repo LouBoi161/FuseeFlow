@@ -2,7 +2,7 @@
   <img src="logo.svg" alt="FuseeFlow Logo" width="600">
 </p>
 
-**FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using a pure Python backend based on [fusee-nano](https://github.com/DavidBuchanan314/fusee-nano).
+**FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using [fusee-nano](https://github.com/DavidBuchanan314/fusee-nano) as the backend.
 
 > [!IMPORTANT]
 > This project was developed with the assistance of AI (Google Gemini).
@@ -12,9 +12,9 @@
 ## Features
 
 - 🚀 **One-Click Injection:** fast and reliable payload injection.
-- 🎨 **Modern GUI:** Built with PyQt6 for a clean look.
+- 🎨 **Modern GUI:** Built with PyQt6 for a clean look on Linux.
 - 📂 **Payload Management:** Easily load, manage, and favorite your payloads.
-- 💻 **Cross-Platform:** Runs natively on Linux and Windows.
+- 🐧 **Linux Native:** Runs natively on Linux.
 - 🔌 **Automatic Detection:** Identifies when a Switch is connected in RCM mode.
 
 ## Prerequisites
@@ -28,13 +28,15 @@
 ## 🐧 Linux Installation
 
 ### 1. Clone the Repository
+Start by cloning the repository and navigating into the directory:
 ```bash
 git clone https://github.com/LouBoi161/FuseeFlow.git
 cd FuseeFlow
 ```
 
 ### 2. System Dependencies
-You need `libusb`.
+
+You need `libusb` for communication with the Switch.
 
 **Arch Linux / Manjaro:**
 ```bash
@@ -80,41 +82,6 @@ python main.py
 
 ---
 
-## 🪟 Windows Installation
-
-### 1. Install Python
-Download and install Python 3.8+ from [python.org](https://www.python.org/). **Make sure to check "Add Python to PATH" during installation.**
-
-### 2. Clone or Download
-Download the repository as a ZIP or clone it:
-```cmd
-git clone https://github.com/LouBoi161/FuseeFlow.git
-cd FuseeFlow
-```
-
-### 3. Install Dependencies
-Open a command prompt (cmd) in the folder and run:
-```cmd
-pip install -r requirements.txt
-```
-
-### 4. Install USB Drivers (Important!)
-To communicate with the Switch in RCM mode, you need to install the `libusbK` driver using **Zadig**:
-
-1.  Download [Zadig](https://zadig.akeo.ie/).
-2.  Connect your Switch in RCM mode.
-3.  Open Zadig and select **Options > List All Devices**.
-4.  Select **APX** from the dropdown list.
-5.  Choose **libusbK (v3.1.0.0)** (or similar) as the target driver.
-6.  Click **Replace Driver** (or Install Driver).
-
-### 5. Running
-Double-click `run_windows.bat` (if available) or run:
-```cmd
-python main.py
-```
-
----
 
 ## ⚙️ Configuration
 
