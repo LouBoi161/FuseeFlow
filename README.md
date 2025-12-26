@@ -28,7 +28,8 @@ You need `libusb` and the `fusee-nano` binary.
 
 **Arch Linux / Manjaro:**
 ```bash
-sudo pacman -S python python-pip libusb fusee-nano
+sudo pacman -S python python-pip libusb
+yay -S fusee-nano
 ```
 
 **Debian / Ubuntu / Mint:**
