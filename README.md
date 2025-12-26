@@ -2,7 +2,7 @@
   <img src="logo.svg" alt="FuseeFlow Logo" width="600">
 </p>
 
-**FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using `fusee-nano` as the backend.
+**FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using [fusee-nano](https://github.com/DavidBuchanan314/fusee-nano) as the backend.
 
 > [!IMPORTANT]
 > This project was developed with the assistance of AI (Google Gemini).
