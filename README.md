@@ -1,15 +1,15 @@
 # FuseeFlow
 
-**FuseeFlow** is a modern, cross-platform graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using `fusee-nano` as the backend.
+**FuseeFlow** is a modern graphical user interface for injecting payloads into a Nintendo Switch in RCM (Recovery Mode). It provides a streamlined experience for launching payloads like Hekate, Fusee, and others using `fusee-nano` as the backend.
 
 ![Screenshot](screenshot.png) *(Add a screenshot here)*
 
 ## Features
 
 - 🚀 **One-Click Injection:** fast and reliable payload injection.
-- 🎨 **Modern GUI:** Built with PyQt6 for a clean look on Linux and Windows.
+- 🎨 **Modern GUI:** Built with PyQt6 for a clean look on Linux.
 - 📂 **Payload Management:** Easily load, manage, and favorite your payloads.
-- 🐧 **Cross-Platform:** Runs natively on Linux and Windows.
+- 🐧 **Linux Native:** Runs natively on Linux.
 - 🔌 **Automatic Detection:** Identifies when a Switch is connected in RCM mode.
 
 ## Prerequisites
@@ -72,31 +72,6 @@ python main.py
 
 ---
 
-## 🪟 Windows Installation
-
-### 1. Python Dependencies
-Open Command Prompt/PowerShell in the folder and run:
-```powershell
-pip install -r requirements.txt
-```
-
-### 2. USB Driver (Zadig)
-Windows needs a specific driver to talk to the Switch in RCM mode.
-
-1.  Download **Zadig** (https://zadig.akeo.ie/).
-2.  Connect your Switch in RCM mode.
-3.  Open Zadig.
-4.  Select **"APX"** (or similar) from the device list. (If not shown, check "List All Devices" in Options).
-5.  Set the driver to **libusbK** or **WinUSB**.
-6.  Click **"Replace Driver"** or "Install Driver".
-
-### 3. Running
-Double-click `run_windows.bat` (if provided) or run:
-```powershell
-python main.py
-```
-
----
 
 ## ⚙️ Configuration
 
