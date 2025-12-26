@@ -35,9 +35,32 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RCM_VENDOR_ID = 0x0955
 RCM_PRODUCT_ID = 0x7321
 
-# Try to find fusee-nano in PATH (AppImage adds its internal /usr/bin to PATH)
-# fallback to local folder for dev mode
-FUSEE_NANO_PATH = shutil.which("fusee-nano") or os.path.join(BASE_DIR, "fusee-nano")
+# Locate fusee-nano
+# Priority: 
+# 1. Local backend source build (backend/fusee-nano/fusee-nano)
+# 2. Local binary in project root (legacy/AppImage)
+# 3. System PATH
+FUSEE_SOURCE_DIR = os.path.join(BASE_DIR, "backend", "fusee-nano")
+LOCAL_BINARY = os.path.join(FUSEE_SOURCE_DIR, "fusee-nano")
+
+# Check if we need to build it
+if os.path.exists(FUSEE_SOURCE_DIR) and not os.path.exists(LOCAL_BINARY) and not shutil.which("fusee-nano"):
+    print("[INFO] fusee-nano binary not found. Attempting to build from source...")
+    try:
+        # Check if make and gcc are available
+        if shutil.which("make") and shutil.which("gcc"):
+            subprocess.run(["make"], cwd=FUSEE_SOURCE_DIR, check=True)
+            print("[SUCCESS] fusee-nano built successfully.")
+        else:
+            print("[ERROR] 'make' or 'gcc' not found. Cannot build fusee-nano.")
+    except Exception as e:
+        print(f"[ERROR] Build failed: {e}")
+
+FUSEE_NANO_PATH = (
+    (LOCAL_BINARY if os.path.exists(LOCAL_BINARY) else None) or
+    shutil.which("fusee-nano") or 
+    os.path.join(BASE_DIR, "fusee-nano")
+)
 
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 PAYLOADS_DIR = os.path.join(DATA_DIR, "payloads")
